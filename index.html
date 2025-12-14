@@ -3,161 +3,32 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>運命の六属性診断（内部ツール）</title>
-
-<style>
-body{
-  font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial;
-  background:#ffffff;
-  color:#222;
-  margin:0;
-}
-header{
-  border-bottom:1px solid #eee;
-  padding:16px 24px;
-}
-h1{margin:0;font-size:22px}
-.container{
-  max-width:960px;
-  margin:auto;
-  padding:24px;
-}
-.mode-select button{
-  margin-right:8px;
-  padding:10px 16px;
-  border-radius:20px;
-  border:1px solid #ddd;
-  background:#fff;
-  cursor:pointer;
-}
-.mode-select button.active{
-  background:#222;
-  color:#fff;
-}
-.card{
-  border:1px solid #e5e5e5;
-  border-radius:18px;
-  padding:22px;
-  margin-bottom:20px;
-}
-label{display:block;margin-top:12px}
-input,select{
-  width:100%;
-  padding:8px;
-  margin-top:4px;
-}
-button.run{
-  margin-top:16px;
-  padding:12px 20px;
-  border-radius:24px;
-  border:none;
-  background:#222;
-  color:#fff;
-  font-size:15px;
-}
-small{color:#666}
-</style>
+<title>心理支援アプリ（施設内運用版）</title>
+<link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-
 <header>
-<h1>🔮 運命の六属性診断（占い師用・内部ツール）</h1>
-<small>※来客には結果のみ提示</small>
+<h1>心理状態・特性サポートアプリ</h1>
 </header>
 
-<div class="container">
 
-<!-- モード切替（個人・相性・グループ） -->
 <section class="mode-select">
-<button onclick="setMode('single')" class="active">個人診断</button>
-<button onclick="setMode('pair')">相性診断</button>
-<button onclick="setMode('group')">グループ診断</button>
+<button onclick="setMode('user')">本人モード</button>
+<button onclick="setMode('family')">家族モード</button>
+<button onclick="setMode('supporter')">支援者モード</button>
 </section>
 
-<!-- 入力 -->
-<section class="card">
-<h2>診断対象入力</h2>
 
-<label>名前</label>
-<input id="name" placeholder="例：江原 啓介">
-
-<label>生年月日</label>
-<input id="birth" type="date">
-
-<label>命数（内部計算済なら直接入力）</label>
-<input id="meisuu" type="number" placeholder="例：53">
-
-<label>手相タイプ</label>
-<select id="palm">
-  <option value="晩成型">晩成型</option>
-  <option value="支援型">支援型</option>
-  <option value="自由型">自由型</option>
-  <option value="統率型">統率型</option>
-</select>
-
-<button class="run" onclick="analyze()">診断する</button>
+<section class="input-block">
+<h2>今日の行動・言動・気分を入力</h2>
+<textarea id="inputText" placeholder="例：朝から不安が強く、音に敏感でイライラ。約束が守れないと言われて落ち込んだ"></textarea>
+<button onclick="analyze()">分析する</button>
 </section>
 
-<!-- 結果 -->
-<section id="result"></section>
 
-</div>
+<section id="result" class="result-block"></section>
 
-<script>
-let mode="single";
-function setMode(m){
-  mode=m;
-  document.querySelectorAll(".mode-select button")
-    .forEach(b=>b.classList.remove("active"));
-  event.target.classList.add("active");
-}
 
-async function j(p){return fetch(p).then(r=>r.json())}
-
-async function analyze(){
-  const name=document.getElementById("name").value;
-  const meisuu=document.getElementById("meisuu").value;
-  const palmType=document.getElementById("palm").value;
-
-  const traits=await j("data/flattype_traits.json");
-  const story=await j("data/story.json");
-  const numerology=await j("data/numerology.json");
-  const palm=await j("data/palmistry.json");
-  const nameJudge=await j("data/name_judge.json");
-  const comp=await j("data/compatibility.json");
-
-  const t=traits[meisuu];
-  const s=story[meisuu];
-  const n=numerology[meisuu];
-  const p=palm[palmType];
-  const nj=nameJudge.sample;
-
-  document.getElementById("result").innerHTML=`
-  <section class="card">
-    <h2>${name} さんの診断結果</h2>
-    <small>命数 ${meisuu}｜${n.zodiac}（${n.metal}）</small>
-
-    <h3>■ 性格・本質</h3>
-    <p>${t.core}</p>
-
-    <h3>■ 過去・育ちの傾向</h3>
-    <p>${s.past}</p>
-
-    <h3>■ 行動特性・手相補正</h3>
-    <p>${t.action}<br>${p.trait}</p>
-
-    <h3>■ 相性ワンポイント</h3>
-    <p>${comp.summary}</p>
-
-    <h3>■ 姓名判断補正</h3>
-    <p>${nj.pattern}<br>${nj.note}</p>
-
-    <h3>■ 総合助言</h3>
-    <p>${t.advice}</p>
-  </section>`;
-}
-</script>
-
+<script src="app.js"></script>
 </body>
 </html>
